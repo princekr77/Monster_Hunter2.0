@@ -9,7 +9,7 @@ public class AudioManager : MonoBehaviour
     public AudioSource source5;
     public AudioSource source6;
 
-    public void AttackAudio()
+    public void ThrowAudio()
     {
         source1.Play();
     }

@@ -189,6 +189,7 @@ namespace StarterAssets
             GameObject arrow = Instantiate(arrowObject, arrowPoint.position, transform.rotation);
             arrow.GetComponent<Rigidbody>().AddForce(transform.forward * 25f, ForceMode.Impulse);
             Debug.Log("Throw Arrow");
+            FindObjectOfType<AudioManager>().ThrowAudio();
         }
 
 

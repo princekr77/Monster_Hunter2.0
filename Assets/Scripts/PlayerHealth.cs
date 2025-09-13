@@ -1,5 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.InputSystem;   // for PlayerInput
+using StarterAssets;             // for ThirdPersonController
 
 public class PlayerHealth : MonoBehaviour
 {
@@ -15,9 +17,17 @@ public class PlayerHealth : MonoBehaviour
     [Header("Animation")]
     public Animator animator; // Assign in Inspector (Player Animator)
 
+    // References
+    private PlayerInput playerInput;
+    private ThirdPersonController controller;
+
     void Start()
     {
         currentHealth = maxHealth;
+
+        // Assign components
+        playerInput = GetComponent<PlayerInput>();
+        controller = GetComponent<ThirdPersonController>();
 
         if (healthBar != null)
         {
@@ -34,7 +44,10 @@ public class PlayerHealth : MonoBehaviour
         currentHealth -= damage;
         currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
 
-        FindObjectOfType<AudioManager>().HurtAudio();
+        // Play hurt sound if AudioManager exists
+        var audioManager = FindObjectOfType<AudioManager>();
+        if (audioManager != null)
+            audioManager.HurtAudio();
 
         if (healthBar != null)
             healthBar.value = currentHealth;
@@ -50,17 +63,24 @@ public class PlayerHealth : MonoBehaviour
         if (isDead) return; // prevent multiple calls
         isDead = true;
 
-        animator.SetBool("Dead", true);
         Debug.Log("☠️ Player Died!");
-        gameOverUI.SetActive(true);
+        FindObjectOfType<AudioManager>().GameOverAudio();
+
+        // Show Game Over UI
+        if (gameOverUI != null)
+            gameOverUI.SetActive(true);
+
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
+
+        // Disable movement and input
+        if (playerInput != null) playerInput.enabled = false;
+        if (controller != null) controller.enabled = false;
 
         // Trigger Death Animation
         if (animator != null)
         {
-           // animator.SetTrigger("Die");
-            //animator.SetBool("isDead", true); //depending on how you set up Animator
+            animator.SetBool("Dead", true); // make sure you have "Dead" bool in Animator
         }
     }
 
