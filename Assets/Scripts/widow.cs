@@ -68,8 +68,12 @@ public class widow : MonoBehaviour
 
         GetComponent<Collider>().enabled = false;
 
-        StartCoroutine(DestroyAfterDelay(2f)); // delay to let animation play
+        // 🔹 Notify GameManager
+        GameManager.Instance.MonsterKilled();
+
+        StartCoroutine(DestroyAfterDelay(2f));
     }
+
 
     private IEnumerator DestroyAfterDelay(float delay)
     {
