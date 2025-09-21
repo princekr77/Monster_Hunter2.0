@@ -26,7 +26,7 @@ namespace StarterAssets
         public float RotationSmoothTime = 0.12f;
 
         [Tooltip("Acceleration and deceleration")]
-        public float SpeedChangeRate = 10.0f;
+        public float SpeedChangeRate = 15.0f;
 
         public AudioClip LandingAudioClip;
         public AudioClip[] FootstepAudioClips;
@@ -74,6 +74,9 @@ namespace StarterAssets
 
         [Tooltip("For locking the camera position on all axis")]
         public bool LockCameraPosition = false;
+
+        [Header("Aim UI")]
+        public UnityEngine.UI.Image aimCircle; // Assign your AimCircle UI in Inspector
 
         // cinemachine
         private float _cinemachineTargetYaw;
@@ -186,11 +189,31 @@ namespace StarterAssets
 
         public void Shoot()
         {
-            GameObject arrow = Instantiate(arrowObject, arrowPoint.position, transform.rotation);
-            arrow.GetComponent<Rigidbody>().AddForce(transform.forward * 25f, ForceMode.Impulse);
-            Debug.Log("Throw Arrow");
+            if (aimCircle == null || arrowObject == null || arrowPoint == null) return;
+
+            GameObject arrow = Instantiate(arrowObject, arrowPoint.position, Quaternion.identity);
+            Rigidbody rb = arrow.GetComponent<Rigidbody>();
+            if (rb == null) return;
+
+            // Use main camera instead of playerAimCamera
+            Camera cam = Camera.main; // get the main camera
+            if (cam == null) return;
+
+            // Convert AimCircle screen position to a ray
+            Vector3 screenPos = aimCircle.transform.position;
+            Ray ray = cam.ScreenPointToRay(screenPos);
+
+            Vector3 shootDirection = ray.direction.normalized;
+
+            rb.velocity = shootDirection * 25f;
+            arrow.transform.forward = rb.velocity.normalized;
+
+            Debug.Log("Arrow shot towards aim circle");
             FindObjectOfType<AudioManager>().ThrowAudio();
         }
+
+
+
 
 
         private void LateUpdate()

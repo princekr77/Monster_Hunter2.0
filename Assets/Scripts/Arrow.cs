@@ -21,7 +21,7 @@ public class Arrow : MonoBehaviour
 
     private IEnumerator DisappearAfterHit()
     {
-        yield return new WaitForSeconds(2f); // wait 2 sec
+        yield return new WaitForSeconds(0.5f); // wait 2 sec
         Destroy(gameObject); // remove only this arrow
     }
 }
