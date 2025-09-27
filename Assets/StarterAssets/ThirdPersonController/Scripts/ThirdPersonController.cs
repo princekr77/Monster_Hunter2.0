@@ -171,21 +171,39 @@ namespace StarterAssets
 
         private void AimShoot()
         {
-            if(_input.isAiming && Grounded && !_input.sprint)
+            if (_input.isAiming && Grounded && !_input.sprint)
             {
-                _animator.SetBool("Aiming", _input.isAiming);
+                _animator.SetBool("Aiming", true);
                 _animator.SetBool("Shooting", _input.isShooting);
+
                 playerFollowCamera.SetActive(false);
                 playerAimCamera.SetActive(true);
+
+#if UNITY_STANDALONE || UNITY_EDITOR
+        // PC → only shoot if player actively presses shoot button
+        if (_input.isShooting)
+        {
+            Shoot();
+        }
+#elif UNITY_ANDROID || UNITY_IOS
+        // Mobile → auto shoot once when button is released
+        if (_input.isShooting)
+        {
+            Shoot();
+            _input.ShootInput(false); // reset shoot flag after firing
+        }
+#endif
             }
             else
             {
                 _animator.SetBool("Aiming", false);
                 _animator.SetBool("Shooting", false);
+
                 playerFollowCamera.SetActive(true);
                 playerAimCamera.SetActive(false);
             }
         }
+
 
         public void Shoot()
         {

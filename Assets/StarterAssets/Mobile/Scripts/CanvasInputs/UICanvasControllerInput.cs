@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public class UICanvasControllerInput : MonoBehaviour
 {
@@ -29,15 +29,34 @@ public class UICanvasControllerInput : MonoBehaviour
         inputs.SprintInput(virtualSprintState);
     }
 
-    // Aim button
-    public void VirtualAimInput(bool virtualAimState)
+    // Android/iOS: Aim + auto shoot on release
+    public void VirtualAimShootInput(bool pressed)
     {
-        inputs.AimInput(virtualAimState);
+#if UNITY_ANDROID || UNITY_IOS
+        if (pressed)
+        {
+            // When pressed → start aiming
+            inputs.AimInput(true);
+            inputs.ShootInput(false);
+        }
+        else
+        {
+            // When released → fire once
+            inputs.AimInput(false);
+            inputs.ShootInput(true);
+        }
+#endif
     }
 
-    // Shoot button
-    public void VirtualShootInput(bool virtualShootState)
+    // Separate Aim (for PC or if needed on mobile)
+    public void VirtualAimInput(bool pressed)
     {
-        inputs.ShootInput(virtualShootState);
+        inputs.AimInput(pressed);
+    }
+
+    // Separate Shoot (for PC or if needed on mobile)
+    public void VirtualShootInput(bool pressed)
+    {
+        inputs.ShootInput(pressed);
     }
 }
