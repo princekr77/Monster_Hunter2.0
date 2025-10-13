@@ -1,9 +1,17 @@
 ﻿using UnityEngine;
+using UnityEngine.EventSystems; // Required for IPointerDownHandler and IPointerUpHandler
+using StarterAssets;
 
-public class UICanvasControllerInput : MonoBehaviour
+
+public class UICanvasControllerInput : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 {
     [Header("Output to Starter Assets")]
     public StarterAssets.StarterAssetsInputs inputs;
+
+    [Header("References")]
+    public Animator animator;   // Drag Player Animator here in Inspector
+
+    //private bool isAiming = false;
 
     // Movement from joystick
     public void VirtualMoveInput(Vector2 virtualMoveDirection)
@@ -29,34 +37,42 @@ public class UICanvasControllerInput : MonoBehaviour
         inputs.SprintInput(virtualSprintState);
     }
 
-    // Android/iOS: Aim + auto shoot on release
-    public void VirtualAimShootInput(bool pressed)
+    // When button pressed down → Aim
+    public void OnPointerDown(PointerEventData eventData)
     {
-#if UNITY_ANDROID || UNITY_IOS
-        if (pressed)
+        //isAiming = true;
+        inputs.AimInput(true);
+
+        if (animator != null)
         {
-            // When pressed → start aiming
-            inputs.AimInput(true);
-            inputs.ShootInput(false);
+            animator.SetBool("Aiming", true);
         }
-        else
-        {
-            // When released → fire once
-            inputs.AimInput(false);
-            inputs.ShootInput(true);
-        }
-#endif
     }
 
-    // Separate Aim (for PC or if needed on mobile)
-    public void VirtualAimInput(bool pressed)
+    // When button released → Shoot
+    public void OnPointerUp(PointerEventData eventData)
     {
-        inputs.AimInput(pressed);
-    }
+        //isAiming = false;
+        inputs.AimInput(false);
 
-    // Separate Shoot (for PC or if needed on mobile)
-    public void VirtualShootInput(bool pressed)
-    {
-        inputs.ShootInput(pressed);
+        // Trigger shooting
+        inputs.ShootInput(true);
+        if (animator != null)
+        {
+            animator.SetBool("Shooting", true);
+        }
+
+        var controller = inputs.GetComponent<ThirdPersonController>();
+        if (controller != null)
+        {
+            controller.Shoot();
+        }
+
+        // Reset shoot after small delay so it doesn’t stay true forever
+        inputs.ShootInput(false);
+        if (animator != null)
+        {
+            animator.SetBool("Shooting", false);
+        }
     }
 }
